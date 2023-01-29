@@ -14,17 +14,7 @@ TODO: Write aggregation code.
  The corresponding test can be found in test/tasks/AggregationKtTest.kt.
  You can use 'Navigate | Test' menu action (note the shortcut) to navigate to the test.
 */
-fun List<User>.aggregate(): List<User> {
-    val totalContributions = mutableMapOf<String, User>()
-    this.forEach {
-        val userInMap = totalContributions.get(it.login)
-        val currentContributionsCount = userInMap?.contributions ?: 0
-        val newContributionsCount = currentContributionsCount + it.contributions
-        totalContributions[it.login] = userInMap?.copy(contributions = newContributionsCount) ?: it
-    }
-
-    return totalContributions
-        .toList()
-        .sortedByDescending { it.second.contributions } // Sort users by total number of contributions
-        .map { it.second } // returns a list of users
-}
+fun List<User>.aggregate(): List<User> =
+    this.groupBy { it.login }
+        .map { (login, group) -> User(login, group.sumOf { it.contributions }) }
+        .sortedByDescending { it.contributions }
